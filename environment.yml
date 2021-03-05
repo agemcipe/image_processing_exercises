@@ -4,6 +4,7 @@ channels:
   - defaults
 dependencies:
   - python
+  - black
   - ipython
   - jupyter
   - numpy
@@ -11,3 +12,5 @@ dependencies:
   - pip
   - pre-commit
   - pytest
+  - pathlib
+  - pillow
