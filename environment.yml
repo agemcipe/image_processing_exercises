@@ -1,0 +1,13 @@
+name: image_processing_exercises
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python
+  - ipython
+  - jupyter
+  - numpy
+  - pandas
+  - pip
+  - pre-commit
+  - pytest
