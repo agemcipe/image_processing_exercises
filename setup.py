@@ -10,6 +10,7 @@ setuptools.setup(
     setup_requires=["setuptools_scm"],
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
+    include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
