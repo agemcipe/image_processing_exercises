@@ -1,1 +1,1 @@
-include Exercises/Exercises_*/*.pgm
+recursive-include Exercises/Exercises_*/*.pgm
