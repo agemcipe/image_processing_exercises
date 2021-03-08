@@ -114,3 +114,131 @@ def images_are_equal(img_one: Image, img_two: Image) -> bool:
     return (img_one_arr.shape == img_two_arr.shape) and (
         img_one_arr == img_two_arr
     ).all()
+
+
+def _sup_or_inf(img_one: Image, img_two: Image, sup_or_inf: str) -> Image:
+    img_one_arr = np.array(img_one)
+    img_two_arr = np.array(img_two)
+
+    if sup_or_inf == "sup":
+        return np.maximum(
+            img_one_arr, img_two_arr
+        )  # element-wise comparison of two arrays
+    elif sup_or_inf == "inf":
+        return Image.fromarray(np.minimum(img_one_arr, img_two_arr))
+    else:
+        raise ValueError(f"Unknown sup_or_inf '{sup_or_inf}'")
+
+
+def supremum(img_one: Image, img_two: Image) -> Image:
+    """Compute the supremum of two images.
+
+    Parameters
+    ----------
+    img_one : Image
+        [description]
+    img_two : Image
+        [description]
+
+    Returns
+    -------
+    Image
+        [description]
+    """
+    return _sup_or_inf(img_one, img_two, "sup")
+
+
+def infimum(img_one: Image, img_two: Image) -> Image:
+    """Compute the infimum of two images.
+
+    Parameters
+    ----------
+    img_one : Image
+        [description]
+    img_two : Image
+        [description]
+
+    Returns
+    -------
+    Image
+        [description]
+    """
+    return _sup_or_inf(img_one, img_two, "inf")
+
+
+def _erosion_or_dilation_of_size_one(img: Image, erosion_or_dilation: str) -> Image:
+
+    img_arr = np.array(img)
+
+    result_img = np.empty(img_arr.shape, dtype=img_arr.dtype)
+
+    nrows = img_arr.shape[0]
+    ncols = img_arr.shape[1]
+
+    for i in range(nrows):
+        for j in range(ncols):
+            sub_arr = img_arr[
+                max(i - 1, 0) : min(i + 1, nrows) + 1,
+                max(j - 1, 0) : min(j + 1, ncols) + 1,
+            ]
+
+            if erosion_or_dilation == "erosion":
+                result_img[i, j] = np.min(sub_arr)
+            elif erosion_or_dilation == "dilation":
+                result_img[i, j] = np.max(sub_arr)
+            else:
+                raise ValueError(f"Unknown erosion_or_dilation '{erosion_or_dilation}'")
+
+    print(result_img)
+
+    assert not np.isnan(
+        result_img
+    ).any()  # if any np.nan are in the result image something must have gone wrong
+
+    return Image.fromarray(result_img)
+
+
+def _erosion_or_dilation_of_size_i(img: Image, i: int, erosion_or_dilation) -> Image:
+    assert i > 0
+
+    result_img = _erosion_or_dilation_of_size_one(img, erosion_or_dilation)
+    for _ in range(i - 1):
+        result_img = _erosion_or_dilation_of_size_one(result_img, erosion_or_dilation)
+
+    return result_img
+
+
+def erosion(img: Image, i: int):
+    """Compute erosion of image.
+
+    Parameters
+    ----------
+    img : Image
+        [description]
+    i : int
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
+    return _erosion_or_dilation_of_size_i(img, i, "erosion")
+
+
+def dilation(img: Image, i: int):
+    """Compute dilation of image.
+
+    Parameters
+    ----------
+    img : Image
+        [description]
+    i : int
+        [description]
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
+    return _erosion_or_dilation_of_size_i(img, i, "dilation")
