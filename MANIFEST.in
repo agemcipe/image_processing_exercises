@@ -1,1 +1,8 @@
-recursive-include Exercises/Exercises_*/*.pgm
+recursive-include Exercises
+
+# added by check-manifest
+include *.yaml
+include *.yml
+recursive-include Exercises *.pdf
+recursive-include Exercises *.pgm
+recursive-include tests *.py
