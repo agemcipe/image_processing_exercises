@@ -276,3 +276,76 @@ def closing(img: Image, i: int) -> Image:
         [description]
     """
     return erosion(dilation(img, i), i)
+
+
+def check_idempotence(img: Image, i: int, opening_or_closing: str) -> bool:
+    """Check if an operation is idempotent.
+
+    The operation there is either a opening or a closing of an image.
+
+    Parameters
+    ----------
+    img : Image
+        [description]
+    i : int
+        [description]
+    opening_or_closing : str
+        [description]
+
+    Returns
+    -------
+    bool
+        [description]
+
+    Raises
+    ------
+    ValueError
+        [description]
+    """
+    if opening_or_closing == "opening":
+        f = opening
+    elif opening_or_closing == "closing":
+        f = closing
+    else:
+        raise ValueError(f"Unknown opening_or_closing '{opening_or_closing}'")
+
+    result_img_one = f(img, i)
+    result_img_two = f(result_img_one, i)
+
+    return images_are_equal(result_img_one, result_img_two)
+
+
+def closing_opening_alternated_filter(img: Image, i: int) -> Image:
+    """Apply an closing-opening alternated filter to image.
+
+    Parameters
+    ----------
+    img : Image
+        [description]
+    i : int
+        [description]
+
+    Returns
+    -------
+    Image
+        [description]
+    """
+    return closing(opening(img, i), i)
+
+
+def opening_closing_alternated_filter(img: Image, i: int) -> Image:
+    """Apply an opening-closing alternated filter to image.
+
+    Parameters
+    ----------
+    img : Image
+        [description]
+    i : int
+        [description]
+
+    Returns
+    -------
+    Image
+        [description]
+    """
+    return opening(closing(img, i), i)
