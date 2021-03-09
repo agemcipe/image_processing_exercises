@@ -93,8 +93,8 @@ def exercise_08a(
 
     plt.savefig("exercise_08a_output_02.png")
     with open("exercise_08a_output_01.txt", "w") as f_out:
-        f_out.write("3")
-        f_out.write("4")
+        f_out.write("3\n")
+        f_out.write("4\n")
         f_out.write(
             "The best two filters are the opening-closing and closing-opening filters as can be seen in 'exercise_08a_output_02.png'"
         )
