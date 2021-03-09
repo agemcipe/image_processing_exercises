@@ -94,14 +94,6 @@ def test_closing(size, expected_result):
     assert utils.images_are_equal(actual_result, expected_result)
 
 
-@pytest.mark.parametrize("opening_or_closing", ["opening", "closing"])
-def test_check_idempotence(opening_or_closing):
-
-    assert utils.check_idempotence(
-        utils.get_image("05ab", "cam_74"), 1, opening_or_closing
-    )
-
-
 @pytest.mark.parametrize(
     "size,expected_result",
     [
@@ -115,3 +107,19 @@ def test_closing_opening_alternated_filter(size, expected_result):
         utils.get_image("04ab", "immed_gray_inv"), size
     )
     assert utils.images_are_equal(actual_result, expected_result)
+
+
+@pytest.mark.parametrize(
+    "opening_or_closing",
+    [
+        "opening",
+        "closing",
+        "opening_closing_alternated_filter",
+        "closing_opening_alternated_filter",
+    ],
+)
+def test_check_idempotence(opening_or_closing):
+
+    assert utils.check_idempotence(
+        utils.get_image("05ab", "cam_74"), 1, opening_or_closing
+    )

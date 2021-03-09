@@ -178,7 +178,8 @@ def _erosion_or_dilation_of_size_one(img: Image, erosion_or_dilation: str) -> Im
     for i in range(nrows):
         for j in range(ncols):
             sub_arr = img_arr[
-                max(i - 1, 0) : min(i + 1, nrows) + 1,
+                max(i - 1, 0) : min(i + 1, nrows)
+                + 1,  # we need max / min here to handle the pixels at the edge of the image correctly
                 max(j - 1, 0) : min(j + 1, ncols) + 1,
             ]
 
@@ -278,43 +279,6 @@ def closing(img: Image, i: int) -> Image:
     return erosion(dilation(img, i), i)
 
 
-def check_idempotence(img: Image, i: int, opening_or_closing: str) -> bool:
-    """Check if an operation is idempotent.
-
-    The operation there is either a opening or a closing of an image.
-
-    Parameters
-    ----------
-    img : Image
-        [description]
-    i : int
-        [description]
-    opening_or_closing : str
-        [description]
-
-    Returns
-    -------
-    bool
-        [description]
-
-    Raises
-    ------
-    ValueError
-        [description]
-    """
-    if opening_or_closing == "opening":
-        f = opening
-    elif opening_or_closing == "closing":
-        f = closing
-    else:
-        raise ValueError(f"Unknown opening_or_closing '{opening_or_closing}'")
-
-    result_img_one = f(img, i)
-    result_img_two = f(result_img_one, i)
-
-    return images_are_equal(result_img_one, result_img_two)
-
-
 def closing_opening_alternated_filter(img: Image, i: int) -> Image:
     """Apply an closing-opening alternated filter to image.
 
@@ -349,3 +313,44 @@ def opening_closing_alternated_filter(img: Image, i: int) -> Image:
         [description]
     """
     return opening(closing(img, i), i)
+
+
+def check_idempotence(img: Image, i: int, operation: str) -> bool:
+    """Check if an operation is idempotent.
+
+    The operation can either be an opening, closing, opening_closing filter or closing_opening filter.
+
+    Parameters
+    ----------
+    img : Image
+        [description]
+    i : int
+        [description]
+    operation : str
+        [description]
+
+    Returns
+    -------
+    bool
+        [description]
+
+    Raises
+    ------
+    ValueError
+        [description]
+    """
+    if operation == "opening":
+        f = opening
+    elif operation == "closing":
+        f = closing
+    elif operation == "opening_closing_alternated_filter":
+        f = opening_closing_alternated_filter
+    elif operation == "closing_opening_alternated_filter":
+        f = closing_opening_alternated_filter
+    else:
+        raise ValueError(f"Unknown operation '{operation}'")
+
+    result_img_one = f(img, i)
+    result_img_two = f(result_img_one, i)
+
+    return images_are_equal(result_img_one, result_img_two)
