@@ -189,8 +189,6 @@ def _erosion_or_dilation_of_size_one(img: Image, erosion_or_dilation: str) -> Im
             else:
                 raise ValueError(f"Unknown erosion_or_dilation '{erosion_or_dilation}'")
 
-    print(result_img)
-
     assert not np.isnan(
         result_img
     ).any()  # if any np.nan are in the result image something must have gone wrong
@@ -242,3 +240,39 @@ def dilation(img: Image, i: int):
         [description]
     """
     return _erosion_or_dilation_of_size_i(img, i, "dilation")
+
+
+def opening(img: Image, i: int) -> Image:
+    """Compute the opening of an image.
+
+    Parameters
+    ----------
+    img : Image
+        [description]
+    i : int
+        [description]
+
+    Returns
+    -------
+    Image
+        [description]
+    """
+    return dilation(erosion(img, i), i)
+
+
+def closing(img: Image, i: int) -> Image:
+    """Compute the closing of an image.
+
+    Parameters
+    ----------
+    img : Image
+        [description]
+    i : int
+        [description]
+
+    Returns
+    -------
+    Image
+        [description]
+    """
+    return erosion(dilation(img, i), i)
