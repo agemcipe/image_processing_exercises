@@ -14,23 +14,30 @@ from image_processing_exercises import utils
         ),
     ],
 )
-def test_images_are_equal(img_one, img_two, expected_result):
-    assert utils.images_are_equal(img_one, img_two) == expected_result
+@pytest.mark.parametrize("method", ["mask", "loop"])
+def test_images_are_equal(img_one, img_two, expected_result, method):
+    assert utils.images_are_equal(img_one, img_two, method) == expected_result
 
 
-def test_supremum():
+@pytest.mark.parametrize("method", ["mask", "loop"])
+def test_supremum(method):
     assert utils.images_are_equal(
         utils.supremum(
-            utils.get_image("02c_1", "image1"), utils.get_image("02c_1", "image2")
+            utils.get_image("02c_1", "image1"),
+            utils.get_image("02c_1", "image2"),
+            method,
         ),
         utils.get_image("02c_1", "image1_sup_image2"),
     )
 
 
-def test_infimum():
+@pytest.mark.parametrize("method", ["mask", "loop"])
+def test_infimum(method):
     assert utils.images_are_equal(
         utils.infimum(
-            utils.get_image("02c_1", "image1"), utils.get_image("02c_1", "image2")
+            utils.get_image("02c_1", "image1"),
+            utils.get_image("02c_1", "image2"),
+            method,
         ),
         utils.get_image("02c_1", "image1_inf_image2"),
     )

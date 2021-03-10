@@ -65,7 +65,7 @@ def get_image(exercise_id: str, img_id: str, file_extension: str = "pgm") -> Ima
     return Image.open(get_image_path(exercise_id, img_id, file_extension))
 
 
-def threshold_image(img: Image, threshold: int) -> Image:
+def threshold_image(img: Image, threshold: int, method="loop") -> Image:
     """Apply threshold operation to image.
 
     a pixel p will have a value of 255 if its value is greater or equal than
@@ -84,14 +84,23 @@ def threshold_image(img: Image, threshold: int) -> Image:
         [description]
     """
     img_arr = np.array(img)
-    mask = img_arr >= threshold
-    img_arr[mask] = 255
-    img_arr[~mask] = 0
+
+    if method == "mask":
+        mask = img_arr >= threshold
+        img_arr[mask] = 255
+        img_arr[~mask] = 0
+
+    elif method == "loop":
+        for i in range(img_arr.shape[0]):
+            for j in range(img_arr.shape[1]):
+                img_arr[i, j] = 255 if img_arr[i, j] >= threshold else 0
+    else:
+        raise ValueError(f"Unknown method '{method}'")
 
     return Image.fromarray(img_arr)
 
 
-def images_are_equal(img_one: Image, img_two: Image) -> bool:
+def images_are_equal(img_one: Image, img_two: Image, method="loop") -> bool:
     """Check if two images are equal.
 
     Two images img_one and img_two of identical sizes are equal if and only if
@@ -111,26 +120,58 @@ def images_are_equal(img_one: Image, img_two: Image) -> bool:
     img_one_arr = np.array(img_one)
     img_two_arr = np.array(img_two)
 
-    return (img_one_arr.shape == img_two_arr.shape) and (
-        img_one_arr == img_two_arr
-    ).all()
+    have_same_shape = img_one_arr.shape == img_two_arr.shape
+    if not have_same_shape:
+        return False
+
+    if method == "mask":
+        return (img_one_arr == img_two_arr).all()
+
+    elif method == "loop":
+        for i in range(img_one_arr.shape[0]):
+            for j in range(img_one_arr.shape[1]):
+                if img_one_arr[i, j] != img_two_arr[i, j]:
+                    return False  # we have found two pixels with different values
+        return True
+
+    else:
+        raise ValueError(f"Unknown method '{method}'")
 
 
-def _sup_or_inf(img_one: Image, img_two: Image, sup_or_inf: str) -> Image:
+def _sup_or_inf(
+    img_one: Image, img_two: Image, sup_or_inf: str, method="loop"
+) -> Image:
     img_one_arr = np.array(img_one)
     img_two_arr = np.array(img_two)
 
-    if sup_or_inf == "sup":
-        return np.maximum(
-            img_one_arr, img_two_arr
-        )  # element-wise comparison of two arrays
-    elif sup_or_inf == "inf":
-        return Image.fromarray(np.minimum(img_one_arr, img_two_arr))
-    else:
+    if sup_or_inf not in ["sup", "inf"]:
         raise ValueError(f"Unknown sup_or_inf '{sup_or_inf}'")
 
+    have_same_shape = img_one_arr.shape == img_two_arr.shape
+    if not have_same_shape:
+        raise ValueError("Images should be of equal size.")
 
-def supremum(img_one: Image, img_two: Image) -> Image:
+    if method == "mask":
+        compare_func = np.maximum if sup_or_inf == "sup" else np.minimum
+        return Image.fromarray(compare_func(img_one_arr, img_two_arr))
+
+    elif method == "loop":
+        result_img_arr = np.empty(img_one_arr.shape, dtype=img_one_arr.dtype)
+
+        compare_func = max if sup_or_inf == "sup" else min
+        for i in range(img_one_arr.shape[0]):
+            for j in range(img_one_arr.shape[1]):
+                result_img_arr[i, j] = compare_func(
+                    img_one_arr[i, j], img_two_arr[i, j]
+                )
+
+        return Image.fromarray(result_img_arr)
+
+    else:
+        raise ValueError(f"Unknown method '{method}'")
+
+
+def supremum(img_one: Image, img_two: Image, method: str = "loop") -> Image:
     """Compute the supremum of two images.
 
     Parameters
@@ -145,10 +186,10 @@ def supremum(img_one: Image, img_two: Image) -> Image:
     Image
         [description]
     """
-    return _sup_or_inf(img_one, img_two, "sup")
+    return _sup_or_inf(img_one, img_two, "sup", method)
 
 
-def infimum(img_one: Image, img_two: Image) -> Image:
+def infimum(img_one: Image, img_two: Image, method: str = "loop") -> Image:
     """Compute the infimum of two images.
 
     Parameters
@@ -163,7 +204,7 @@ def infimum(img_one: Image, img_two: Image) -> Image:
     Image
         [description]
     """
-    return _sup_or_inf(img_one, img_two, "inf")
+    return _sup_or_inf(img_one, img_two, "inf", method)
 
 
 def _erosion_or_dilation_of_size_one(img: Image, erosion_or_dilation: str) -> Image:
@@ -177,9 +218,9 @@ def _erosion_or_dilation_of_size_one(img: Image, erosion_or_dilation: str) -> Im
 
     for i in range(nrows):
         for j in range(ncols):
+            # we need max / min here to handle the pixels at the edge of the image correctly
             sub_arr = img_arr[
-                max(i - 1, 0) : min(i + 1, nrows)
-                + 1,  # we need max / min here to handle the pixels at the edge of the image correctly
+                max(i - 1, 0) : min(i + 1, nrows) + 1,
                 max(j - 1, 0) : min(j + 1, ncols) + 1,
             ]
 
