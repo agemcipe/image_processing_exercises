@@ -77,10 +77,17 @@ def threshold_image(img: Image, threshold: int, method="loop") -> Image:
         [description]
     threshold : int
         [description]
+    method : str, optional
+        the way to calculate the result, can either be mask (using numpy boolean indexing) or loop (accessing pixels explicitly), by default "loop"
 
     Returns
     -------
     Image
+        [description]
+
+    Raises
+    ------
+    ValueError
         [description]
     """
     img_arr = np.array(img)
@@ -111,6 +118,8 @@ def images_are_equal(img_one: Image, img_two: Image, method="loop") -> bool:
     ----------
     img_one : Image
     img_two : Image
+    method : str, optional
+        the way to calculate the result, can either be mask (using numpy boolean indexing) or loop (accessing pixels explicitly), by default "loop"
 
     Returns
     -------
@@ -141,6 +150,35 @@ def images_are_equal(img_one: Image, img_two: Image, method="loop") -> bool:
 def _sup_or_inf(
     img_one: Image, img_two: Image, sup_or_inf: str, method="loop"
 ) -> Image:
+    """Compute supremum or infimum of two images.
+
+    This is intended as a helper function. Use "supremum(...)" or "infimum(...)" instead.
+
+    Parameters
+    ----------
+    img_one : Image
+        [description]
+    img_two : Image
+        [description]
+    sup_or_inf : str
+        [description]
+    method : str, optional
+        the way to calculate the result, can either be mask (using numpy boolean indexing) or loop (accessing pixels explicitly), by default "loop"
+
+    Returns
+    -------
+    Image
+        [description]
+
+    Raises
+    ------
+    ValueError
+        [description]
+    ValueError
+        [description]
+    ValueError
+        [description]
+    """
     img_one_arr = np.array(img_one)
     img_two_arr = np.array(img_two)
 
@@ -180,6 +218,8 @@ def supremum(img_one: Image, img_two: Image, method: str = "loop") -> Image:
         [description]
     img_two : Image
         [description]
+    method : str, optional
+        the way to calculate the result, can either be mask (using numpy boolean indexing) or loop (accessing pixels explicitly), by default "loop"
 
     Returns
     -------
@@ -198,6 +238,8 @@ def infimum(img_one: Image, img_two: Image, method: str = "loop") -> Image:
         [description]
     img_two : Image
         [description]
+    method : str, optional
+        the way to calculate the result, can either be mask (using numpy boolean indexing) or loop (accessing pixels explicitly), by default "loop"
 
     Returns
     -------
