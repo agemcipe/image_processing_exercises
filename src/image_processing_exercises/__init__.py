@@ -21,3 +21,7 @@ assert BASE_EXERCISE_DIR.exists()
 __exercise_dir_stem = "Exercises_"
 # directory paths that contain exercises
 EXERCISE_DIRS = sorted([p for p in BASE_EXERCISE_DIR.glob(__exercise_dir_stem + "*")])
+
+# output directory to save exercise results
+BASE_OUTPUT_DIR = BASE_DIR / "outputs"
+assert BASE_OUTPUT_DIR.exists()

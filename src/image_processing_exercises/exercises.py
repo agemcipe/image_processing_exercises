@@ -1,12 +1,40 @@
 import pathlib
+import random
 
 import matplotlib.pyplot as plt
-from image_processing_exercises import utils
+import numpy as np
+from image_processing_exercises import BASE_EXERCISE_DIR, BASE_OUTPUT_DIR, utils
 from PIL import Image
 
 
+def exercise_01(
+    img_path=BASE_EXERCISE_DIR / "Exercises_01a" / "particles01__rows480__cols638.jpg",
+    output_path=BASE_OUTPUT_DIR / "exercise_01a.jpg",
+):
+    """Show that image pixel can be modified.
+
+    Here we simply add some noise to the image but multiplying each pixel value with a random number between 0 and 1.
+
+    Parameters
+    ----------
+    img_path : [type], optional
+        [description], by default BASE_EXERCISE_DIR/"Exercises_01a"/"particles01__rows480__cols638.jpg"
+    output_path : [type], optional
+        [description], by default BASE_OUTPUT_DIR/"exercise_01a.jpg"
+    """
+    img_arr = np.array(Image.open(img_path))
+
+    for i in range(img_arr.shape[0]):
+        for j in range(img_arr.shape[1]):
+            img_arr[i, j] = img_arr[i, j] * random.random()
+
+    Image.fromarray(img_arr).save(output_path)
+
+
 def exercise_02a_thresh(
-    img_path, value: int, output_path: str = "exercise_02a_output_01.pgm"
+    img_path=utils.get_image_path("02ab", "cam_74"),
+    value: int = 100,
+    output_path=BASE_OUTPUT_DIR / "exercise_02a_output_01.jpg",
 ):
     """Wrap threshold_image function.
 
@@ -23,7 +51,11 @@ def exercise_02a_thresh(
     utils.threshold_image(input_img, threshold=100).save(output_path)
 
 
-def exercise_02b_compare(img_one_path, img_two_path) -> tuple:
+def exercise_02b_compare(
+    img_one_path=utils.get_image_path("02ab", "cam_74"),
+    img_two_path=utils.get_image_path("02ab", "cam_74_threshold100"),
+    output_path=BASE_OUTPUT_DIR / "exercise_02b_output_01.txt",
+) -> tuple:
     """Wrap images_are_equal function.
 
     The program should write '1' or '0' (without quotes) to an output
@@ -45,8 +77,7 @@ def exercise_02b_compare(img_one_path, img_two_path) -> tuple:
     output_val = int(
         utils.images_are_equal(Image.open(img_one_path), Image.open(img_two_path))
     )
-    output_file = "exercise_02b_output_01.txt"
-    with open(output_file, "w") as out_file:
+    with open(output_path, "w") as out_file:
         out_file.write(str(output_val))
         output_file_path = pathlib.Path(out_file.name).absolute()
 
