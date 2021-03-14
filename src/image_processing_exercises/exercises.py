@@ -72,14 +72,14 @@ def exercise_05a_idempotence_opening(i: int, img_path: str, output_path: str):
     img = Image.open(img_path)
     output_val = utils.check_idempotence(img, i, operation="opening")
     with open(output_path, "w") as out_file:
-        out_file.write(str(output_val))
+        out_file.write(str(int(output_val)))
 
 
 def exercise_05b_idempotence_closing(i: int, img_path: str, output_path: str):
     img = Image.open(img_path)
     output_val = utils.check_idempotence(img, i, operation="closing")
     with open(output_path, "w") as out_file:
-        out_file.write(str(output_val))
+        out_file.write(str(int(output_val)))
 
 
 def exercise_06a_closing_opening(i: int, img_path: str, output_path: str):
@@ -98,7 +98,7 @@ def exercise_07a_idempotence_closing_opening(i: int, img_path: str, output_path:
         img, i, operation="closing_opening_alternated_filter"
     )
     with open(output_path, "w") as out_file:
-        out_file.write(str(output_val))
+        out_file.write(str(int(output_val)))
 
 
 def exercise_07b_idempotence_opening_closing(i: int, img_path: str, output_path: str):
@@ -107,7 +107,7 @@ def exercise_07b_idempotence_opening_closing(i: int, img_path: str, output_path:
         img, i, operation="opening_closing_alternated_filter"
     )
     with open(output_path, "w") as out_file:
-        out_file.write(str(output_val))
+        out_file.write(str(int(output_val)))
 
 
 def exercise_08a(img_path, max_size=2, show=False):
