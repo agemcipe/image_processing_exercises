@@ -1,16 +1,17 @@
 import pathlib
 import random
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-from image_processing_exercises import BASE_EXERCISE_DIR, BASE_OUTPUT_DIR, utils
+from image_processing_exercises import BASE_OUTPUT_DIR, utils
 from PIL import Image
 
+# run plotting in non interactive mode
+matplotlib.use("Agg")
 
-def exercise_01(
-    img_path=BASE_EXERCISE_DIR / "Exercises_01a" / "particles01__rows480__cols638.jpg",
-    output_path=BASE_OUTPUT_DIR / "exercise_01a.jpg",
-):
+
+def exercise_01(img_path, output_path):
     """Show that image pixel can be modified.
 
     Here we simply add some noise to the image but multiplying each pixel value with a random number between 0 and 1.
@@ -18,9 +19,9 @@ def exercise_01(
     Parameters
     ----------
     img_path : [type], optional
-        [description], by default BASE_EXERCISE_DIR/"Exercises_01a"/"particles01__rows480__cols638.jpg"
+        [description]
     output_path : [type], optional
-        [description], by default BASE_OUTPUT_DIR/"exercise_01a.jpg"
+        [description]
     """
     img_arr = np.array(Image.open(img_path))
 
@@ -31,49 +32,12 @@ def exercise_01(
     Image.fromarray(img_arr).save(output_path)
 
 
-def exercise_02a_thresh(
-    img_path=utils.get_image_path("02ab", "cam_74"),
-    value: int = 100,
-    output_path=BASE_OUTPUT_DIR / "exercise_02a_output_01.jpg",
-):
-    """Wrap threshold_image function.
-
-    Parameters
-    ----------
-    img_path : [type]
-        [description]
-    value : int
-        [description]
-    output_path : str, optional
-        [description], by default "exercise_02a_output_01.pgm"
-    """
+def exercise_02a_thresh(img_path, value, output_path):
     input_img = Image.open(img_path)
-    utils.threshold_image(input_img, threshold=100).save(output_path)
+    utils.threshold_image(input_img, threshold=value).save(output_path)
 
 
-def exercise_02b_compare(
-    img_one_path=utils.get_image_path("02ab", "cam_74"),
-    img_two_path=utils.get_image_path("02ab", "cam_74_threshold100"),
-    output_path=BASE_OUTPUT_DIR / "exercise_02b_output_01.txt",
-) -> tuple:
-    """Wrap images_are_equal function.
-
-    The program should write '1' or '0' (without quotes) to an output
-    file called exercise_02b_output_01.txt depending on whether the
-    pgm images are equal or not.
-
-    Parameters
-    ----------
-    img_one_path : [type]
-        [description]
-    img_two_path : [type]
-        [description]
-
-    Returns
-    -------
-    Tuple
-        [description]
-    """
+def exercise_02b_compare(img_one_path, img_two_path, output_path) -> tuple:
     output_val = int(
         utils.images_are_equal(Image.open(img_one_path), Image.open(img_two_path))
     )
@@ -84,19 +48,79 @@ def exercise_02b_compare(
     return output_file_path, output_val
 
 
-def exercise_08a(
-    img_path=utils.get_image_path("08a", "isn_256"), max_size=3, show=True
-):
+def exercise_03a_erosion(i: int, img_path: str, output_path: str):
+    img = Image.open(img_path)
+    utils.erosion(img, i).save(output_path)
+
+
+def exercise_03b_dilation(i: int, img_path: str, output_path: str):
+    img = Image.open(img_path)
+    utils.dilation(img, i).save(output_path)
+
+
+def exercise_04a_opening(i: int, img_path: str, output_path: str):
+    img = Image.open(img_path)
+    utils.opening(img, i).save(output_path)
+
+
+def exercise_04b_closing(i: int, img_path: str, output_path: str):
+    img = Image.open(img_path)
+    utils.closing(img, i).save(output_path)
+
+
+def exercise_05a_idempotence_opening(i: int, img_path: str, output_path: str):
+    img = Image.open(img_path)
+    output_val = utils.check_idempotence(img, i, operation="opening")
+    with open(output_path, "w") as out_file:
+        out_file.write(str(output_val))
+
+
+def exercise_05b_idempotence_closing(i: int, img_path: str, output_path: str):
+    img = Image.open(img_path)
+    output_val = utils.check_idempotence(img, i, operation="closing")
+    with open(output_path, "w") as out_file:
+        out_file.write(str(output_val))
+
+
+def exercise_06a_closing_opening(i: int, img_path: str, output_path: str):
+    img = Image.open(img_path)
+    utils.closing_opening_alternated_filter(img, i).save(output_path)
+
+
+def exercise_06b_closing_opening(i: int, img_path: str, output_path: str):
+    img = Image.open(img_path)
+    utils.closing_opening_alternated_filter(img, i).save(output_path)
+
+
+def exercise_07a_idempotence_closing_opening(i: int, img_path: str, output_path: str):
+    img = Image.open(img_path)
+    output_val = utils.check_idempotence(
+        img, i, operation="closing_opening_alternated_filter"
+    )
+    with open(output_path, "w") as out_file:
+        out_file.write(str(output_val))
+
+
+def exercise_07b_idempotence_opening_closing(i: int, img_path: str, output_path: str):
+    img = Image.open(img_path)
+    output_val = utils.check_idempotence(
+        img, i, operation="opening_closing_alternated_filter"
+    )
+    with open(output_path, "w") as out_file:
+        out_file.write(str(output_val))
+
+
+def exercise_08a(img_path, max_size=2, show=False):
     """Apply 4 filters to the given image.
 
     Parameters
     ----------
     img_path : [type], optional
-        [description], by default utils.get_image_path("08a", "isn_256")
+        [description]
     max_size : int, optional
-        [description], by default 3
+        [description], by default 2
     show : bool, optional
-        [description], by default True
+        [description], by default False
     """
     img = Image.open(img_path)
     f, axarr = plt.subplots(max_size, 4, figsize=(14, 3 * max_size))
@@ -116,14 +140,14 @@ def exercise_08a(
             if i == 0:
                 axarr[i, j].set_title(title)
             if j == 0:
-                axarr[i, j].set_ylabel(f"Size {i+1}", rotation=0, size="large")
+                axarr[i, j].set_ylabel(f"{i+1}", rotation=0, size="large")
 
     plt.tight_layout()
     if show:
         plt.show()
 
-    plt.savefig("exercise_08a_output_02.png")
-    with open("exercise_08a_output_01.txt", "w") as f_out:
+    plt.savefig(BASE_OUTPUT_DIR / "exercise_08a_output_02.png")
+    with open(BASE_OUTPUT_DIR / "exercise_08a_output_01.txt", "w") as f_out:
         f_out.write("3\n")
         f_out.write("4\n")
         f_out.write(

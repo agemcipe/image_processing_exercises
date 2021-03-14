@@ -249,8 +249,32 @@ def infimum(img_one: Image, img_two: Image, method: str = "loop") -> Image:
     return _sup_or_inf(img_one, img_two, "inf", method)
 
 
-def _erosion_or_dilation_of_size_one(img: Image, erosion_or_dilation: str) -> Image:
+def _erosion_or_dilation_of_size_one(
+    img: Image, erosion_or_dilation: str, method: str
+) -> Image:
+    """Calculate an erosion or dilation of size 1.
 
+    This is intended as a helper function.
+
+    Parameters
+    ----------
+    img : Image
+        [description]
+    erosion_or_dilation : str
+        [description]
+    method : str, optional
+        the way to calculate the result, can either be mask (using numpy boolean indexing) or loop (accessing pixels explicitly), by default "loop"
+
+    Returns
+    -------
+    Image
+        [description]
+
+    Raises
+    ------
+    ValueError
+        [description]
+    """
     img_arr = np.array(img)
 
     result_img = np.empty(img_arr.shape, dtype=img_arr.dtype)
@@ -261,10 +285,17 @@ def _erosion_or_dilation_of_size_one(img: Image, erosion_or_dilation: str) -> Im
     for i in range(nrows):
         for j in range(ncols):
             # we need max / min here to handle the pixels at the edge of the image correctly
-            sub_arr = img_arr[
-                max(i - 1, 0) : min(i + 1, nrows) + 1,
-                max(j - 1, 0) : min(j + 1, ncols) + 1,
-            ]
+            if method == "mask":
+                sub_arr = img_arr[
+                    max(i - 1, 0) : min(i + 1, nrows) + 1,
+                    max(j - 1, 0) : min(j + 1, ncols) + 1,
+                ]
+            if method == "loop":
+                sub_arr = []
+                for sub_i in range(i - 1, i + 2):
+                    for sub_j in range(j - 1, j + 2):
+                        if (0 <= sub_i < nrows) and (0 <= sub_j < ncols):
+                            sub_arr.append(img_arr[sub_i, sub_j])
 
             if erosion_or_dilation == "erosion":
                 result_img[i, j] = np.min(sub_arr)
@@ -280,17 +311,21 @@ def _erosion_or_dilation_of_size_one(img: Image, erosion_or_dilation: str) -> Im
     return Image.fromarray(result_img)
 
 
-def _erosion_or_dilation_of_size_i(img: Image, i: int, erosion_or_dilation) -> Image:
+def _erosion_or_dilation_of_size_i(
+    img: Image, i: int, erosion_or_dilation, method: str
+) -> Image:
     assert i > 0
 
-    result_img = _erosion_or_dilation_of_size_one(img, erosion_or_dilation)
+    result_img = _erosion_or_dilation_of_size_one(img, erosion_or_dilation, method)
     for _ in range(i - 1):
-        result_img = _erosion_or_dilation_of_size_one(result_img, erosion_or_dilation)
+        result_img = _erosion_or_dilation_of_size_one(
+            result_img, erosion_or_dilation, method
+        )
 
     return result_img
 
 
-def erosion(img: Image, i: int):
+def erosion(img: Image, i: int, method: str = "loop"):
     """Compute erosion of image.
 
     Parameters
@@ -305,10 +340,10 @@ def erosion(img: Image, i: int):
     [type]
         [description]
     """
-    return _erosion_or_dilation_of_size_i(img, i, "erosion")
+    return _erosion_or_dilation_of_size_i(img, i, "erosion", method)
 
 
-def dilation(img: Image, i: int):
+def dilation(img: Image, i: int, method: str = "loop"):
     """Compute dilation of image.
 
     Parameters
@@ -317,13 +352,15 @@ def dilation(img: Image, i: int):
         [description]
     i : int
         [description]
+    method : str
+        [description]
 
     Returns
     -------
     [type]
         [description]
     """
-    return _erosion_or_dilation_of_size_i(img, i, "dilation")
+    return _erosion_or_dilation_of_size_i(img, i, "dilation", method)
 
 
 def opening(img: Image, i: int) -> Image:
