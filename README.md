@@ -1,6 +1,4 @@
 # image_processing_exercises
-
-
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 
@@ -9,8 +7,9 @@
 This repository contains the exercises for the Course "Image Processing, Analysis and Classification" at UPM, Spring Semester 2021.
 
 ## Requirements
-Create a conda environment to run this project in isolation (not needed but recommended).
+Create a conda environment to run this project in isolation.
 ```[bash]
+cd image_processing_exercises
 conda env create -f environment.yml
 conda activate image_processing_exercises 
 ```
@@ -23,7 +22,7 @@ This install this package into the active environment.
 
 ## Usage
 These are the relevant files:
-* `utils.py` contains the low-level image processing. Most of the relevant functionality is implemented here. This module is also unit-tested and the tests can be found under `tests/test_utils.py`. To run these tests call `pytest ./tests/test_utils.py`
+* `utils.py` contains the low-level image processing. Most of the relevant functionality is implemented here. This module is also unit-tested and the tests can be found under `tests/test_utils.py`. These tests do not create any ouput for manual inspection. To run these tests call `pytest ./tests/test_utils.py`
 * `exercises.py` are mostly wrapper functions around low-level functions to have functions named as required in the exercise pdfs.
 * `main.py` is a convenience script to run all exercises in `exercises.py` at once and create output files under `outputs/`. To run this script call `python ./src/image_processing_exercises/main.py`
 
