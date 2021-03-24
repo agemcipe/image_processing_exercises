@@ -174,10 +174,6 @@ def _sup_or_inf(
     ------
     ValueError
         [description]
-    ValueError
-        [description]
-    ValueError
-        [description]
     """
     img_one_arr = np.array(img_one)
     img_two_arr = np.array(img_two)
@@ -284,18 +280,21 @@ def _erosion_or_dilation_of_size_one(
 
     for i in range(nrows):
         for j in range(ncols):
-            # we need max / min here to handle the pixels at the edge of the image correctly
             if method == "mask":
+                # we need max / min here to handle the pixels at the edge of the image correctly
                 sub_arr = img_arr[
                     max(i - 1, 0) : min(i + 1, nrows) + 1,
                     max(j - 1, 0) : min(j + 1, ncols) + 1,
                 ]
-            if method == "loop":
+            elif method == "loop":
                 sub_arr = []
                 for sub_i in range(i - 1, i + 2):
                     for sub_j in range(j - 1, j + 2):
                         if (0 <= sub_i < nrows) and (0 <= sub_j < ncols):
                             sub_arr.append(img_arr[sub_i, sub_j])
+
+            else:
+                raise ValueError(f"Unknown method '{method}'")
 
             if erosion_or_dilation == "erosion":
                 result_img[i, j] = np.min(sub_arr)
