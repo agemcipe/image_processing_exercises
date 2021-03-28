@@ -14,7 +14,7 @@ matplotlib.use("Agg")
 def exercise_01(img_path, output_path):
     """Show that image pixel can be modified.
 
-    Here we simply add some noise to the image but multiplying each pixel value with a random number between 0 and 1.
+    Here we simply add some noise to the image by multiplying each pixel value with a random number between 0 and 1.
 
     Parameters
     ----------
