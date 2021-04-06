@@ -11,9 +11,6 @@ from PIL import Image
 
 # %%
 # S1a. Contour extraction using MM erosion or dilation
-img_p = "/home/agemcipe/personal_dump/image_processing_and_analysis/image_processing_exercises/Exercises/Exercises_segmentation/hitchcock.png"
-
-
 def s1a_contour_extraction(img: Image) -> Image:
     img = PIL.ImageOps.invert(img.convert("RGB"))
     erosion_img = utils.erosion(img, i=1, method="mask")
@@ -25,21 +22,29 @@ test_image = utils.get_image("segmentation", "hitchcock", "png")
 s1a_contour_extraction(test_image)
 
 # %%
-
-
 def get_neighbors(img_arr, p, connectivity=8, size=1):
     i, j = p
     neighbors = set()
 
     if connectivity == 8:
-        for x in range(max(i - 1, 0), min(i + 1, img_arr.shape[0]) + 1):
-            for y in range(max(j - 1, 0), min(j + 1, img_arr.shape[1]) + 1):
+        for x in range(max(i - size, 0), min(i + size, img_arr.shape[0] - 1) + 1):
+            for y in range(max(j - size, 0), min(j + size, img_arr.shape[1] - 1) + 1):
                 if x == i and y == j:
-                    continue  # a pixel is not its own neighbor
+                    continue  # a pixel is not its own neighbor, in case of size = 0 an empty set is returned
                 neighbors.add((x, y))
 
     elif connectivity == 4:
-        pass
+        for x in [-1, 1]:
+            new_x = i + x
+            if 0 <= new_x < img_arr.shape[0]:
+                neighbors.add((new_x, j))
+        for y in [-1, 1]:
+            new_y = j + y
+            if 0 <= (j + y) <= img_arr.shape[1]:
+                neighbors.add((i, new_y))
+
+    else:
+        raise ValueError(f"Unknown connectivity value '{connectivity}'")
 
     return neighbors
 
@@ -101,20 +106,16 @@ def color_regions(img: Image) -> Image:
         for p in ls:
             img_arr_rgb[p] = np.array(colors_ls[i]) * 255
 
-    return Image.fromarray(img_arr)
-
-
-
-NUM_COLORS = max(regions.keys())
-cm = matplotlib.colors.Colormap("rainbow")
-cNorm = matplotlib.colors.Normalize(vmin=0, vmax=NUM_COLORS - 1)
-scalarMap = matplotlib.cm.ScalarMappable(norm=cNorm, cmap=cm)
+    return Image.fromarray(img_arr_rgb)
 
 
 # %%
 test_image = utils.get_image("segmentation", "particles", "png").convert("L")
 
+color_regions(test_image)
 
+
+# %%
 # check that image is binary
 img_arr = np.array(test_image)
 img_arr.shape
