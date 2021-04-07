@@ -1,5 +1,4 @@
 # %%
-# %%
 import matplotlib
 import matplotlib.cm as mplcm
 import matplotlib.colors as colors
@@ -8,6 +7,8 @@ import numpy as np
 import PIL.ImageOps
 from image_processing_exercises import utils
 from PIL import Image
+
+import cv2
 
 # %%
 # S1a. Contour extraction using MM erosion or dilation
@@ -114,22 +115,70 @@ test_image = utils.get_image("segmentation", "particles", "png").convert("L")
 
 color_regions(test_image)
 
-
 # %%
-# check that image is binary
-img_arr = np.array(test_image)
-img_arr.shape
-
-
-def get_mask(img_arr, i, j):
-    return img_arr[
-        max(i - 1, 0) : min(i + 1, img_arr.shape[0]) + 1,
-        max(j - 1, 0) : min(j + 1, img_arr.shape[1]) + 1,
-    ]
+def diff_images(img_one, img_two):
+    return Image.fromarray(np.array(img_one) - np.array(img_two))
 
 
 # %%
+gear_image = utils.get_image("segmentation", "wheel", "png").convert("L")
 
 
-# %% import matplotlib.pyplot as plt
+def s1c_wheel_teeth_count():
+
+    gear_image = utils.get_image("segmentation", "wheel", "png").convert("L")
+
+    processed_image = utils.opening_closing_alternated_filter(
+        diff_images(
+            test_image,
+            utils.opening(
+                test_image,
+                4,
+            ),
+        ),
+        1,
+    )
+
+    regions = s1b_grassfire(processed_image)
+    regions_cnt = (
+        max(regions.keys()) - 1
+    )  # we have to subtract one since regions are 0 indexed
+
+    teeth_cnt = (
+        regions_cnt - 3
+    )  # there are 3 regions in the middle that I cannot get rid of by filtering alone :(
+
+    print(f"Detected {teeth_cnt} teeth in wheel")
+    return processed_image, teeth_cnt
+
+
+# %%
+s1c_wheel_teeth_count()
+
+# %%
+# S1d.Coffee grains watershed markers
+def s1d_coffee_train_watershed_markers():
+
+    coffee_image = utils.get_image("segmentation", "coffee_grains", "jpg").convert(
+        "RGB"
+    )
+
+    coffee_image_inv = PIL.ImageOps.invert(coffee_image).convert("L")
+
+    coffee_image_inv_thres = utils.threshold_image(coffee_image_inv, 100)
+
+    i = utils.closing(coffee_image_inv_thres, 1)  # remove noise from the image
+
+    dist_transform = cv2.distanceTransform(
+        np.array(i), cv2.DIST_L2, 3
+    )  # distance from next black Pixel
+    ret, sure_fg = cv2.threshold(dist_transform, 0.6 * dist_transform.max(), 255, 0)
+
+    sure_fg_p = Image.fromarray(np.array(sure_fg, dtype="uint8"))
+    sure_fg_p = utils.opening(sure_fg_p, 2)
+
+    return sure_fg_p
+
+
+s1d_coffee_train_watershed_markers()
 # %%
