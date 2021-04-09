@@ -1,3 +1,6 @@
+# %%[markdown]
+## Exercises focusing on Image Segmentation
+
 # %%
 import matplotlib
 import matplotlib.cm as mplcm
@@ -5,13 +8,15 @@ import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import numpy as np
 import PIL.ImageOps
-from image_processing_exercises import utils
 from PIL import Image
 
 import cv2
 
+from image_processing_exercises import utils
+
+# %%[markdown]
+### S1a. Contour extraction using MM erosion or dilation
 # %%
-# S1a. Contour extraction using MM erosion or dilation
 def s1a_contour_extraction(img: Image) -> Image:
     img = PIL.ImageOps.invert(img.convert("RGB"))
     erosion_img = utils.erosion(img, i=1, method="mask")
@@ -22,6 +27,8 @@ def s1a_contour_extraction(img: Image) -> Image:
 test_image = utils.get_image("segmentation", "hitchcock", "png")
 s1a_contour_extraction(test_image)
 
+# %%[markdown]
+### S1b.Grassfire propagation algorithm
 # %%
 def get_neighbors(img_arr, p, connectivity=8, size=1):
     i, j = p
@@ -86,7 +93,14 @@ def s1b_grassfire(img: Image) -> dict:
 
 
 # %%
+particles_image = utils.get_image("segmentation", "particles", "png").convert("L")
+
+for k, v in s1b_grassfire(particles_image).items():
+    print(f"Region {k} contains {len(v)} pixels")
+
+# %%
 def _get_n_colors(num_colors):
+    # get n distinct colors
     cm = plt.get_cmap("gist_rainbow")
     cNorm = colors.Normalize(vmin=0, vmax=num_colors - 1)
     scalarMap = mplcm.ScalarMappable(norm=cNorm, cmap=cm)
@@ -97,9 +111,7 @@ def _get_n_colors(num_colors):
 # %%
 def color_regions(img: Image) -> Image:
 
-    img = test_image
     regions = s1b_grassfire(img)
-    img_arr = np.array(img)
     colors_ls = _get_n_colors(max(regions.keys()) + 1)
 
     img_arr_rgb = np.array(img.convert("RGB"))
@@ -111,30 +123,24 @@ def color_regions(img: Image) -> Image:
 
 
 # %%
-test_image = utils.get_image("segmentation", "particles", "png").convert("L")
+color_regions(particles_image)
 
-color_regions(test_image)
-
+# %%
+### S1c Counting of wheel teeth
 # %%
 def diff_images(img_one, img_two):
     return Image.fromarray(np.array(img_one) - np.array(img_two))
 
 
 # %%
-gear_image = utils.get_image("segmentation", "wheel", "png").convert("L")
-
-
 def s1c_wheel_teeth_count():
 
     gear_image = utils.get_image("segmentation", "wheel", "png").convert("L")
 
     processed_image = utils.opening_closing_alternated_filter(
         diff_images(
-            test_image,
-            utils.opening(
-                test_image,
-                4,
-            ),
+            gear_image,
+            utils.opening(gear_image, 5),  # this value result of experimentation
         ),
         1,
     )
@@ -153,12 +159,16 @@ def s1c_wheel_teeth_count():
 
 
 # %%
-s1c_wheel_teeth_count()
+processed_img, _ = s1c_wheel_teeth_count()
+processed_img
+
+# %%[markdown]
+### S1d.Coffee grains watershed markers
 
 # %%
-# S1d.Coffee grains watershed markers
 def s1d_coffee_train_watershed_markers():
 
+    # https://docs.opencv.org/master/d3/db4/tutorial_py_watershed.html
     coffee_image = utils.get_image("segmentation", "coffee_grains", "jpg").convert(
         "RGB"
     )
@@ -180,5 +190,10 @@ def s1d_coffee_train_watershed_markers():
     return sure_fg_p
 
 
-s1d_coffee_train_watershed_markers()
 # %%
+markers = s1d_coffee_train_watershed_markers()
+markers
+
+# %%
+bean_regions = s1b_grassfire(markers)
+print(f"I count {max(bean_regions)-1} beans")
